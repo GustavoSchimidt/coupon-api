@@ -45,11 +45,31 @@ class CouponTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenCodeIsNull() {
+        BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> Coupon.create(null, "Desc", new BigDecimal("1.0"), OffsetDateTime.now().plusDays(1), true)
+        );
+
+        assertEquals("Code cannot be null", exception.getMessage());
+    }
+
+    @Test
     void shouldThrowExceptionWhenExpirationDateIsInThePast() {
         OffsetDateTime pastDate = OffsetDateTime.now().minusDays(1);
 
         BusinessException exception = assertThrows(BusinessException.class, () -> 
             Coupon.create("ABC123", "Desc", new BigDecimal("1.0"), pastDate, true)
+        );
+
+        assertEquals("Expiration date cannot be in the past", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreatingCouponWithoutExpirationDate() {
+        BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> Coupon.create("ABC123", "Desc", new BigDecimal("1.0"), null, true)
         );
 
         assertEquals("Expiration date cannot be in the past", exception.getMessage());
@@ -79,11 +99,42 @@ class CouponTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenRehydratingCouponWithoutExpirationDate() {
+        BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> Coupon.rehydrate(
+                        UUID.randomUUID(),
+                        "ABC123",
+                        "Desc",
+                        new BigDecimal("1.0"),
+                        null,
+                        "ACTIVE",
+                        true,
+                        false,
+                        false,
+                        null
+                )
+        );
+
+        assertEquals("Expiration date cannot be null", exception.getMessage());
+    }
+
+    @Test
     void shouldThrowExceptionWhenDiscountIsLessThanMinimum() {
         BigDecimal invalidDiscount = new BigDecimal("0.49");
 
         BusinessException exception = assertThrows(BusinessException.class, () -> 
             Coupon.create("ABC123", "Desc", invalidDiscount, OffsetDateTime.now().plusDays(1), true)
+        );
+
+        assertEquals("Discount value must be at least 0.5", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDiscountIsNull() {
+        BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> Coupon.create("ABC123", "Desc", null, OffsetDateTime.now().plusDays(1), true)
         );
 
         assertEquals("Discount value must be at least 0.5", exception.getMessage());
@@ -129,5 +180,23 @@ class CouponTest {
 
         assertTrue(coupon.isDeleted());
         assertEquals(originalDeletedAt, coupon.getDeletedAt());
+    }
+
+    @Test
+    void shouldDefaultStatusToActiveWhenRehydratingCouponWithNullStatus() {
+        Coupon coupon = Coupon.rehydrate(
+                UUID.randomUUID(),
+                "ABC123",
+                "Desc",
+                new BigDecimal("1.0"),
+                OffsetDateTime.now().plusDays(1),
+                null,
+                true,
+                false,
+                false,
+                null
+        );
+
+        assertEquals("ACTIVE", coupon.getStatus());
     }
 }
