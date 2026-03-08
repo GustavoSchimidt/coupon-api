@@ -1,5 +1,6 @@
 package br.com.gustavo.coupon;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
@@ -20,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 
+import br.com.gustavo.coupon.adapters.out.persistence.CouponEntity;
 import br.com.gustavo.coupon.adapters.out.persistence.CouponJpaRepository;
 
 @SpringBootTest
@@ -231,5 +233,63 @@ class CouponApiIntegrationTest {
                 .andExpect(jsonPath("$.status").value("ACTIVE"))
                 .andExpect(jsonPath("$.redeemed").value(false))
                 .andExpect(jsonPath("$.description").value("Cupom de Integração"));
+    }
+
+    @Test
+    void shouldReturn400WhenGettingCouponNotFound() throws Exception {
+        mockMvc.perform(get("/coupon/NOPE01"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Coupon not found with code: NOPE01"));
+    }
+
+    @Test
+    void shouldGetExpiredCouponAndReturn200() throws Exception {
+        CouponEntity expired = new CouponEntity();
+        expired.setCode("EXP111");
+        expired.setDescription("Cupom Expirado");
+        expired.setDiscountValue(new BigDecimal("10.0"));
+        expired.setExpirationDate(OffsetDateTime.now(ZoneOffset.UTC).minusDays(3));
+        expired.setStatus("ACTIVE");
+        expired.setPublished(true);
+        expired.setRedeemed(false);
+        expired.setDeleted(false);
+        expired.setDeletedAt(null);
+        repository.saveAndFlush(expired);
+
+        mockMvc.perform(get("/coupon/EXP111"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("EXP111"))
+                .andExpect(jsonPath("$.description").value("Cupom Expirado"))
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
+    }
+
+    @Test
+    void shouldReturn422WhenDeletingAlreadyDeletedCoupon() throws Exception {
+        String futureDate = OffsetDateTime.now(ZoneOffset.UTC).plusDays(10).toString();
+
+        String payload = """
+                {
+                  "code": "DEL900",
+                  "description": "Cupom já deletado",
+                  "discountValue": 10.0,
+                  "expirationDate": "%s",
+                  "published": true
+                }
+                """.formatted(futureDate);
+
+        MvcResult createResult = mockMvc.perform(post("/coupon")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String id = JsonPath.read(createResult.getResponse().getContentAsString(), "$.id");
+
+        mockMvc.perform(delete("/coupon/" + id))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(delete("/coupon/" + id))
+                .andExpect(status().is(422))
+                .andExpect(jsonPath("$.message").value("Coupon not found with id: " + id));
     }
 }

@@ -21,7 +21,7 @@ public class GetCouponUseCaseImpl implements GetCouponUseCase {
     @Transactional
     public Coupon execute(String code) {
         Coupon coupon = repositoryPort.findByCode(code)
-                .orElseThrow(() -> new BusinessException("Coupon not found with code: " + code));
+                .orElseThrow(() -> new BusinessException(400, "Coupon not found with code: " + code));
 
         return coupon;
     }
