@@ -26,7 +26,7 @@ Fluxo principal:
 
 ## Tecnologias
 
-- Java 25
+- Java 21
 - Spring Boot 4.0.3
 - Spring Web MVC
 - Spring Data JPA
@@ -37,7 +37,7 @@ Fluxo principal:
 
 ## Pré-requisitos
 
-- JDK 25 instalado
+- JDK 21 instalado
 - Docker e Docker Compose (opcional, para execução em container)
 
 ## Variáveis de ambiente

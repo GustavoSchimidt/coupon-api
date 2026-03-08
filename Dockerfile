@@ -1,5 +1,5 @@
-# Atualizado para a versão 25
-FROM eclipse-temurin:25-jdk-alpine
+# Java 21 LTS
+FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 COPY target/*.jar app.jar
