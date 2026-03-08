@@ -19,12 +19,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<StandardError> handleBusinessException(BusinessException ex, HttpServletRequest request) {
         StandardError error = new StandardError(
                 LocalDateTime.now(),
-                422,
+                ex.getStatus(),
                 "Business Rule Violation",
                 ex.getMessage(),
                 request.getRequestURI()
         );
-        return ResponseEntity.status(422).body(error);
+        return ResponseEntity.status(ex.getStatus()).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

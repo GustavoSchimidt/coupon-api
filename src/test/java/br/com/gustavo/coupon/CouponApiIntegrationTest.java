@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -133,7 +134,7 @@ class CouponApiIntegrationTest {
     }
 
     @Test
-    void shouldReturn422WhenCreatingCouponWithExistingActiveCode() throws Exception {
+    void shouldReturn400WhenCreatingCouponWithExistingActiveCode() throws Exception {
         String futureDate = OffsetDateTime.now(ZoneOffset.UTC).plusDays(10).toString();
 
         String firstPayload = """
@@ -164,7 +165,7 @@ class CouponApiIntegrationTest {
         mockMvc.perform(post("/coupon")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(secondPayload))
-                .andExpect(status().is(422))
+                .andExpect(status().is(400))
                 .andExpect(jsonPath("$.message").value("Coupon already exists with code: DUP111"));
 
         assertEquals(
@@ -174,7 +175,7 @@ class CouponApiIntegrationTest {
     }
 
     @Test
-    void shouldReturn422WhenCreatingCouponWithCodeFromDeletedCoupon() throws Exception {
+    void shouldReturn201WhenCreatingCouponWithCodeFromDeletedCoupon() throws Exception {
         String futureDate = OffsetDateTime.now(ZoneOffset.UTC).plusDays(10).toString();
 
         String payload = """
@@ -201,7 +202,34 @@ class CouponApiIntegrationTest {
         mockMvc.perform(post("/coupon")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
-                .andExpect(status().is(422))
-                .andExpect(jsonPath("$.message").value("Coupon already exists with code: DEL321"));
+                .andExpect(status().is(201));
+    }
+
+    @Test
+    void shouldGetCouponAndReturn200() throws Exception {
+        String futureDate = OffsetDateTime.now(ZoneOffset.UTC).plusDays(10).toString();
+        
+        String jsonPayload = """
+                {
+                  "code": "INT-123!",
+                  "description": "Cupom de Integração",
+                  "discountValue": 25.0,
+                  "expirationDate": "%s",
+                  "published": true
+                }
+                """.formatted(futureDate);
+
+        mockMvc.perform(post("/coupon")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonPayload))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/coupon/INT123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.code").value("INT123"))
+                .andExpect(jsonPath("$.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.redeemed").value(false))
+                .andExpect(jsonPath("$.description").value("Cupom de Integração"));
     }
 }

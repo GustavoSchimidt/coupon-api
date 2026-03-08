@@ -3,12 +3,10 @@ package br.com.gustavo.coupon.adapters.out.persistence;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import br.com.gustavo.coupon.application.ports.out.CouponRepositoryPort;
 import br.com.gustavo.coupon.domain.model.Coupon;
-import br.com.gustavo.shared.exception.BusinessException;
 
 @Component
 public class CouponPersistenceAdapter implements CouponRepositoryPort {
@@ -22,23 +20,8 @@ public class CouponPersistenceAdapter implements CouponRepositoryPort {
     @Override
     public Coupon save(Coupon coupon) {
         CouponEntity entity = toEntity(coupon);
-        boolean creation = coupon.getId() == null;
 
-        if (creation) {
-            ensureCodeIsAvailable(coupon.getCode());
-        } else {
-            attachIdFromActiveCoupon(coupon.getId(), entity);
-        }
-
-        CouponEntity savedEntity;
-        try {
-            savedEntity = jpaRepository.saveAndFlush(entity);
-        } catch (DataIntegrityViolationException ex) {
-            if (creation) {
-                throw new BusinessException("Coupon already exists with code: " + coupon.getCode());
-            }
-            throw ex;
-        }
+        CouponEntity savedEntity = jpaRepository.saveAndFlush(entity);
 
         return toDomain(savedEntity);
     }
@@ -49,16 +32,10 @@ public class CouponPersistenceAdapter implements CouponRepositoryPort {
                 .map(this::toDomain);
     }
 
-    private void ensureCodeIsAvailable(String code) {
-        if (jpaRepository.existsByCode(code)) {
-            throw new BusinessException("Coupon already exists with code: " + code);
-        }
-    }
-
-    private void attachIdFromActiveCoupon(UUID id, CouponEntity entity) {
-        CouponEntity existing = jpaRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("Coupon not found with id: " + id));
-        entity.setId(existing.getId());
+    @Override
+    public Optional<Coupon> findByCode(String code) {
+        return jpaRepository.findByCode(code)
+                .map(this::toDomain);
     }
     
     private CouponEntity toEntity(Coupon coupon) {

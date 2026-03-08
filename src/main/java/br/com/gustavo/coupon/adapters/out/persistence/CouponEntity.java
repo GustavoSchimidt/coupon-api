@@ -22,7 +22,7 @@ public class CouponEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(unique = true, nullable = false, length = 6)
+    @Column(nullable = false, length = 6)
     private String code;
 
     @Column(nullable = false)

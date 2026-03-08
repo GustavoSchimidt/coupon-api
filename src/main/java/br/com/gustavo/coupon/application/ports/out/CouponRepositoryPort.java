@@ -8,4 +8,5 @@ import br.com.gustavo.coupon.domain.model.Coupon;
 public interface CouponRepositoryPort {
     Coupon save(Coupon coupon);
     Optional<Coupon> findById(UUID id);
+    Optional<Coupon> findByCode(String code);
 }
