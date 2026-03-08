@@ -40,6 +40,22 @@ Fluxo principal:
 - JDK 25 instalado
 - Docker e Docker Compose (opcional, para execução em container)
 
+## Variáveis de ambiente
+
+1. Crie seu arquivo local:
+
+```bash
+cp .env.example .env
+```
+
+2. Opcional para execução local com Maven:
+
+```bash
+set -a
+source .env
+set +a
+```
+
 ## Executando localmente
 
 1. Compile o projeto:
@@ -69,13 +85,15 @@ Fluxo principal:
 ./mvnw clean package -DskipTests
 ```
 
-2. Suba com Docker Compose:
+2. Garanta que existe `.env` (ex: `cp .env.example .env`).
+
+3. Suba com Docker Compose:
 
 ```bash
 docker-compose up --build
 ```
 
-3. Para derrubar:
+4. Para derrubar:
 
 ```bash
 docker-compose down

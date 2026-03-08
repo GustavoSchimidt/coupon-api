@@ -4,8 +4,22 @@ services:
   coupon-api:
     build: .
     container_name: coupon-api-app
+    env_file:
+      - .env
     ports:
-      - "8080:8080"
+      - "${SERVER_PORT:-8080}:${SERVER_PORT:-8080}"
     environment:
-      - TZ=America/Sao_Paulo
+      - SERVER_PORT=${SERVER_PORT:-8080}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-default}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:-jdbc:h2:mem:coupondb}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=${SPRING_DATASOURCE_DRIVER_CLASS_NAME:-org.h2.Driver}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-sa}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-}
+      - SPRING_H2_CONSOLE_ENABLED=${SPRING_H2_CONSOLE_ENABLED:-true}
+      - SPRING_H2_CONSOLE_PATH=${SPRING_H2_CONSOLE_PATH:-/h2-console}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}
+      - SPRING_JPA_SHOW_SQL=${SPRING_JPA_SHOW_SQL:-true}
+      - SPRING_JPA_FORMAT_SQL=${SPRING_JPA_FORMAT_SQL:-true}
+      - SPRING_JPA_OPEN_IN_VIEW=${SPRING_JPA_OPEN_IN_VIEW:-false}
+      - TZ=${TZ:-America/Sao_Paulo}
     restart: unless-stopped
