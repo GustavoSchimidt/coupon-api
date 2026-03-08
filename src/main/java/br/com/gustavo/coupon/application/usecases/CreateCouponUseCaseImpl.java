@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.gustavo.coupon.adapters.in.web.dto.CouponResponseDTO;
 import br.com.gustavo.coupon.application.ports.in.CreateCouponCommand;
 import br.com.gustavo.coupon.application.ports.in.CreateCouponUseCase;
 import br.com.gustavo.coupon.application.ports.out.CouponRepositoryPort;
@@ -23,7 +22,7 @@ public class CreateCouponUseCaseImpl implements CreateCouponUseCase {
 
     @Override
     @Transactional
-    public CouponResponseDTO execute(CreateCouponCommand command) {
+    public Coupon execute(CreateCouponCommand command) {
         Coupon coupon = Coupon.create(
                 command.code(),
                 command.description(),
@@ -36,16 +35,7 @@ public class CreateCouponUseCaseImpl implements CreateCouponUseCase {
 
         Coupon couponCreated = repositoryPort.save(coupon);
 
-        return new CouponResponseDTO(
-            couponCreated.getId(),
-            couponCreated.getCode(),
-            couponCreated.getDescription(),
-            couponCreated.getDiscountValue(),
-            couponCreated.getExpirationDate(),
-            couponCreated.getStatus(),
-            couponCreated.isPublished(),
-            couponCreated.isRedeemed()
-        );
+        return couponCreated;
     }
 
     private void couponExists(String code) {

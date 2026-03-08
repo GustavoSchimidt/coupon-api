@@ -18,6 +18,7 @@ import br.com.gustavo.coupon.application.ports.in.CreateCouponCommand;
 import br.com.gustavo.coupon.application.ports.in.CreateCouponUseCase;
 import br.com.gustavo.coupon.application.ports.in.DeleteCouponUseCase;
 import br.com.gustavo.coupon.application.ports.in.GetCouponUseCase;
+import br.com.gustavo.coupon.domain.model.Coupon;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -41,9 +42,10 @@ public class CouponController {
     @Operation(summary = "Retorna um cupom", description = "Retorna um cupom pelo código")
     public ResponseEntity<CouponResponseDTO> get(@PathVariable String code) {
         
-        CouponResponseDTO coupon = getCouponUseCase.execute(code);
+        Coupon coupon = getCouponUseCase.execute(code);
+        CouponResponseDTO response = toResponse(coupon);
         
-        return ResponseEntity.status(HttpStatus.OK).body(coupon);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping
@@ -58,9 +60,10 @@ public class CouponController {
                 request.published()
         );
 
-        CouponResponseDTO coupon = createCouponUseCase.execute(command);
+        Coupon coupon = createCouponUseCase.execute(command);
+        CouponResponseDTO response = toResponse(coupon);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(coupon);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{id}")
@@ -70,5 +73,18 @@ public class CouponController {
         deleteCouponUseCase.execute(id);
         
         return ResponseEntity.noContent().build();
+    }
+
+    private CouponResponseDTO toResponse(Coupon coupon) {
+        return new CouponResponseDTO(
+                coupon.getId(),
+                coupon.getCode(),
+                coupon.getDescription(),
+                coupon.getDiscountValue(),
+                coupon.getExpirationDate(),
+                coupon.getStatus(),
+                coupon.isPublished(),
+                coupon.isRedeemed()
+        );
     }
 }

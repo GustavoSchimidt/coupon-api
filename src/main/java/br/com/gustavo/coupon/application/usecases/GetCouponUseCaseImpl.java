@@ -3,7 +3,6 @@ package br.com.gustavo.coupon.application.usecases;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.gustavo.coupon.adapters.in.web.dto.CouponResponseDTO;
 import br.com.gustavo.coupon.application.ports.in.GetCouponUseCase;
 import br.com.gustavo.coupon.application.ports.out.CouponRepositoryPort;
 import br.com.gustavo.coupon.domain.model.Coupon;
@@ -20,19 +19,10 @@ public class GetCouponUseCaseImpl implements GetCouponUseCase {
 
     @Override
     @Transactional
-    public CouponResponseDTO execute(String code) {
+    public Coupon execute(String code) {
         Coupon coupon = repositoryPort.findByCode(code)
                 .orElseThrow(() -> new BusinessException("Coupon not found with code: " + code));
 
-        return new CouponResponseDTO(
-            coupon.getId(),
-            coupon.getCode(),
-            coupon.getDescription(),
-            coupon.getDiscountValue(),
-            coupon.getExpirationDate(),
-            coupon.getStatus(),
-            coupon.isPublished(),
-            coupon.isRedeemed()
-        );
+        return coupon;
     }
 }

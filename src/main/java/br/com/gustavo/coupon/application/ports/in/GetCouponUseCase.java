@@ -1,7 +1,7 @@
 package br.com.gustavo.coupon.application.ports.in; 
 
-import br.com.gustavo.coupon.adapters.in.web.dto.CouponResponseDTO;
+import br.com.gustavo.coupon.domain.model.Coupon;
 
 public interface GetCouponUseCase {
-    CouponResponseDTO execute(String code);
+    Coupon execute(String code);
 }

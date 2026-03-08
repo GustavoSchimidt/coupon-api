@@ -49,14 +49,14 @@ class GetCouponUseCaseImplTest {
         var result = useCase.execute(existingCoupon.getCode());
 
         assertNotNull(result);
-        assertEquals(existingCoupon.getId(), result.id());
-        assertEquals(existingCoupon.getCode(), result.code());
-        assertEquals(existingCoupon.getDescription(), result.description());
-        assertEquals(existingCoupon.getDiscountValue(), result.discountValue());
-        assertEquals(existingCoupon.getExpirationDate(), result.expirationDate());
-        assertEquals(existingCoupon.getStatus(), result.status());
-        assertEquals(existingCoupon.isPublished(), result.published());
-        assertEquals(existingCoupon.isRedeemed(), result.redeemed());
+        assertEquals(existingCoupon.getId(), result.getId());
+        assertEquals(existingCoupon.getCode(), result.getCode());
+        assertEquals(existingCoupon.getDescription(), result.getDescription());
+        assertEquals(existingCoupon.getDiscountValue(), result.getDiscountValue());
+        assertEquals(existingCoupon.getExpirationDate(), result.getExpirationDate());
+        assertEquals(existingCoupon.getStatus(), result.getStatus());
+        assertEquals(existingCoupon.isPublished(), result.isPublished());
+        assertEquals(existingCoupon.isRedeemed(), result.isRedeemed());
         verify(repositoryPort, times(1)).findByCode(existingCoupon.getCode());
     }
 }
