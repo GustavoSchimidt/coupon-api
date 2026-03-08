@@ -56,6 +56,29 @@ class CouponTest {
     }
 
     @Test
+    void shouldRehydrateCouponSuccessfullyEvenWhenExpired() {
+        UUID id = UUID.randomUUID();
+        OffsetDateTime expiredDate = OffsetDateTime.now().minusDays(1);
+
+        Coupon coupon = Coupon.rehydrate(
+                id,
+                "ABC123",
+                "Desc",
+                new BigDecimal("1.0"),
+                expiredDate,
+                "ACTIVE",
+                true,
+                false,
+                false,
+                null
+        );
+
+        assertNotNull(coupon);
+        assertEquals(id, coupon.getId());
+        assertEquals(expiredDate, coupon.getExpirationDate());
+    }
+
+    @Test
     void shouldThrowExceptionWhenDiscountIsLessThanMinimum() {
         BigDecimal invalidDiscount = new BigDecimal("0.49");
 

@@ -36,7 +36,7 @@ public class Coupon {
 
     public static Coupon create(String code, String description, BigDecimal discountValue, OffsetDateTime expirationDate,
                                 boolean published) {
-        validateExpirationDate(expirationDate);
+        validateExpirationDateForCreation(expirationDate);
         validateDiscountValue(discountValue);
         String sanitizedCode = sanitizeCode(code);
         
@@ -66,7 +66,7 @@ public class Coupon {
             boolean deleted,
             OffsetDateTime deletedAt
     ) {
-        validateExpirationDate(expirationDate);
+        validateExpirationDateRequired(expirationDate);
         validateDiscountValue(discountValue);
         String sanitizedCode = sanitizeCode(code);
 
@@ -98,9 +98,15 @@ public class Coupon {
         return sanitized;
     }
 
-    private static void validateExpirationDate(OffsetDateTime expirationDate) {
+    private static void validateExpirationDateForCreation(OffsetDateTime expirationDate) {
         if (expirationDate == null || expirationDate.isBefore(OffsetDateTime.now())) {
             throw new BusinessException("Expiration date cannot be in the past");
+        }
+    }
+
+    private static void validateExpirationDateRequired(OffsetDateTime expirationDate) {
+        if (expirationDate == null) {
+            throw new BusinessException("Expiration date cannot be null");
         }
     }
 
