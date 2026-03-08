@@ -56,6 +56,12 @@ source .env
 set +a
 ```
 
+Variáveis importantes:
+
+- `RATE_LIMIT_ENABLED`
+- `RATE_LIMIT_MAX_REQUESTS`
+- `RATE_LIMIT_WINDOW_SECONDS`
+
 ## Executando localmente
 
 1. Compile o projeto:
@@ -98,6 +104,14 @@ docker-compose up --build
 ```bash
 docker-compose down
 ```
+
+## Ambiente publicado
+
+obs: domain temporário
+
+- API: [https://api-cupom.economizei.tech/](https://api-cupom.economizei.tech/)
+- Swagger UI: [https://api-cupom.economizei.tech/swagger-ui.html](https://api-cupom.economizei.tech/swagger-ui.html)
+- OpenAPI JSON: [https://api-cupom.economizei.tech/v3/api-docs](https://api-cupom.economizei.tech/v3/api-docs)
 
 ## Endpoints principais
 
